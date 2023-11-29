@@ -98,21 +98,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="product-details">
     <img src="img/<?php echo $product['imagemProduto']; ?>" alt="<?php echo $product['nomeProduto']; ?>">
     <h2><?php echo $product['nomeProduto']; ?></h2>
-    <p>Valor: R$ <?php echo number_format($product['precoProduto'], 2, ',', '.'); ?></p>
+    <p id="totalDisplay">Valor: R$ <?php echo number_format($product['precoProduto'], 2, ',', '.'); ?></p>
 
-    <form method="post">
-        <label for="name">Nome:</label>
-        <input type="text" id="name" name="name" required>
+<form method="post">
+    <label for="name">Nome:</label>
+    <input type="text" id="name" name="name" required>
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
 
-        <label for="address">Endereço:</label>
-        <textarea id="address" name="address" required></textarea>
+    <label for="cartao">Numero cartão:</label>
+    <input type="text" id="cartao" name="cartao" required>
+    <div id="cardTypeDisplay"></div>
 
-        <button type="submit">Comprar</button>
-    </form>
+    <label for="address">Endereço:</label>
+    <textarea id="address" name="address" required></textarea>
+
+    <button type="submit">Comprar</button>
+</form>
+
+<button type="button" id="addToCartBtn">Adicionar ao carrinho</button>
 </div>
 
+<script>
+// JavaScript code to count clicks on the "Adicionar ao carrinho" button
+let addToCartBtn = document.getElementById('addToCartBtn');
+let clickCount = 0;
+
+addToCartBtn.addEventListener('click', function () {
+    clickCount++;
+    let total = clickCount * <?php echo $product['precoProduto']; ?>;
+    updateTotalDisplay(total);
+});
+
+// Function to update the total display on the webpage
+function updateTotalDisplay(total) {
+    let totalDisplay = document.getElementById('totalDisplay');
+    totalDisplay.textContent = `Valor: R$ ${total.toFixed(2)}`;
+}
+
+// Function to identify card type based on the card number
+function identifyCardType(cardNumber) {
+    // Regular expressions for known card types
+    const visaPattern = /^4/;
+    const mastercardPattern = /^5[1-5]/;
+    const eloPattern = /^(636368|438935|504175|451416|636297)/;
+
+    if (visaPattern.test(cardNumber)) {
+        return 'Visa';
+    } else if (mastercardPattern.test(cardNumber)) {
+        return 'MasterCard';
+    } else if (eloPattern.test(cardNumber)) {
+        return 'Elo';
+    } else {
+        return 'Unknown Card Type';
+    }
+}
+
+// Function to update card type display
+function updateCardTypeDisplay(cardNumber) {
+    let cardTypeDisplay = document.getElementById('cardTypeDisplay');
+    let cardType = identifyCardType(cardNumber);
+    cardTypeDisplay.textContent = `Tipo de Cartão: ${cardType}`;
+}
+
+// Example usage
+let cardNumberInput = document.getElementById('cartao');
+cardNumberInput.addEventListener('input', function () {
+    updateCardTypeDisplay(cardNumberInput.value);
+});
+</script>
 </body>
 </html>
